@@ -1,0 +1,12 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: weather-raw
+  labels:
+    strimzi.io/cluster: weather-cluster 
+spec:
+  partitions: 3 
+  replicas: 1 
+  config:
+    retention.ms: 604800000 
+    segment.bytes: 1073741824

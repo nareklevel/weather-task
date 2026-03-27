@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: consumer-long
+  namespace: weather-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: consumer-long
+  template:
+    metadata:
+      labels:
+        app: consumer-long
+    spec:
+      containers:
+        - name: consumer-long
+          image: 515242615212.dkr.ecr.us-east-1.amazonaws.com/weather/consumer-long:latest
+          env:
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: "weather-cluster-kafka-bootstrap.kafka.svc.cluster.local:9092"
+            - name: TOPIC
+              value: "weather-raw"
+            - name: GROUP_ID
+              value: "long-writer"
+            - name: DB_HOST
+              value: "weather-postgres-rw.postgres.svc.cluster.local"
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_NAME
+              value: "weatherdb"
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: password
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"

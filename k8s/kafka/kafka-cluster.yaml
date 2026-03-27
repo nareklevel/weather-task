@@ -1,0 +1,23 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: Kafka
+metadata:
+  name: weather-cluster
+spec:
+  kafka:
+    version: 3.9.0
+    replicas: 1
+    listeners:
+      - name: plain
+        port: 9092
+        type: internal
+        tls: false
+    storage:
+      type: persistent-claim
+      size: 5Gi
+      deleteClaim: false
+  zookeeper:
+    replicas: 1
+    storage:
+      type: persistent-claim
+      size: 2Gi
+      deleteClaim: false

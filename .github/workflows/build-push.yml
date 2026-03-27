@@ -1,0 +1,78 @@
+name: Build and Push to ECR
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'services/**'
+
+permissions:
+  contents: write
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REGISTRY: 515242615212.dkr.ecr.us-east-1.amazonaws.com
+
+jobs:
+  build-push:
+    name: Build and Push Docker Images
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push producer
+        uses: docker/build-push-action@v5
+        with:
+          context: ./services/producer
+          push: true
+          tags: |
+            ${{ env.ECR_REGISTRY }}/weather/producer:${{ github.sha }}
+            ${{ env.ECR_REGISTRY }}/weather/producer:latest
+
+      - name: Build and push consumer-short
+        uses: docker/build-push-action@v5
+        with:
+          context: ./services/consumer_short
+          push: true
+          tags: |
+            ${{ env.ECR_REGISTRY }}/weather/consumer-short:${{ github.sha }}
+            ${{ env.ECR_REGISTRY }}/weather/consumer-short:latest
+
+      - name: Build and push consumer-long
+        uses: docker/build-push-action@v5
+        with:
+          context: ./services/consumer_long
+          push: true
+          tags: |
+            ${{ env.ECR_REGISTRY }}/weather/consumer-long:${{ github.sha }}
+            ${{ env.ECR_REGISTRY }}/weather/consumer-long:latest
+
+      - name: Update Kubernetes manifests with new image tags
+        run: |
+          SHA=${{ github.sha }}
+          sed -i "s|${{ env.ECR_REGISTRY }}/weather/producer:.*|${{ env.ECR_REGISTRY }}/weather/producer:${SHA}|" k8s/app/producer.yaml
+          sed -i "s|${{ env.ECR_REGISTRY }}/weather/consumer-short:.*|${{ env.ECR_REGISTRY }}/weather/consumer-short:${SHA}|" k8s/app/consumer-short.yaml
+          sed -i "s|${{ env.ECR_REGISTRY }}/weather/consumer-long:.*|${{ env.ECR_REGISTRY }}/weather/consumer-long:${SHA}|" k8s/app/consumer-long.yaml
+
+      - name: Commit and push updated manifests
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add k8s/app/producer.yaml k8s/app/consumer-short.yaml k8s/app/consumer-long.yaml
+          git diff --cached --quiet || git commit -m "ci: update image tags to ${{ github.sha }} [skip ci]"
+          git push

@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: producer
+  namespace: weather-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: producer
+  template:
+    metadata:
+      labels:
+        app: producer
+    spec:
+      containers:
+        - name: producer
+          image: 515242615212.dkr.ecr.us-east-1.amazonaws.com/weather/producer:latest
+          env:
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: "weather-cluster-kafka-bootstrap.kafka.svc.cluster.local:9092"
+            - name: WEATHER_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: weather-api-secret
+                  key: api_key
+            - name: TOPIC
+              value: "weather-raw"
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"

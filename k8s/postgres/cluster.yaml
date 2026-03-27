@@ -1,0 +1,67 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: weather-postgres
+spec:
+  instances: 1
+  bootstrap:
+    initdb:
+      database: weatherdb
+      owner: weatheruser
+      secret:
+        name: postgres-credentials
+      postInitSQL:
+        - |
+          CREATE TABLE IF NOT EXISTS weather_short (
+            id SERIAL PRIMARY KEY,
+            city VARCHAR(100),
+            time TIMESTAMP,
+            temperature_c NUMERIC(5,2),
+            temperature_f NUMERIC(5,2)
+          );
+        - |
+          CREATE TABLE IF NOT EXISTS weather_long (
+            id SERIAL PRIMARY KEY,
+            city VARCHAR(100),
+            region VARCHAR(100),
+            country VARCHAR(100),
+            lat NUMERIC(9,4),
+            lon NUMERIC(9,4),
+            tz_id VARCHAR(100),
+            localtime TIMESTAMP,
+            last_updated TIMESTAMP,
+            temp_c NUMERIC(5,2),
+            temp_f NUMERIC(5,2),
+            is_day SMALLINT,
+            condition_text VARCHAR(100),
+            condition_code INT,
+            wind_mph NUMERIC(6,2),
+            wind_kph NUMERIC(6,2),
+            wind_degree INT,
+            wind_dir VARCHAR(10),
+            pressure_mb NUMERIC(7,2),
+            pressure_in NUMERIC(7,2),
+            precip_mm NUMERIC(6,2),
+            precip_in NUMERIC(6,2),
+            humidity INT,
+            cloud INT,
+            feelslike_c NUMERIC(5,2),
+            feelslike_f NUMERIC(5,2),
+            windchill_c NUMERIC(5,2),
+            windchill_f NUMERIC(5,2),
+            heatindex_c NUMERIC(5,2),
+            heatindex_f NUMERIC(5,2),
+            dewpoint_c NUMERIC(5,2),
+            dewpoint_f NUMERIC(5,2),
+            vis_km NUMERIC(6,2),
+            vis_miles NUMERIC(6,2),
+            uv NUMERIC(5,2),
+            gust_mph NUMERIC(6,2),
+            gust_kph NUMERIC(6,2),
+            short_rad NUMERIC(8,2),
+            diff_rad NUMERIC(8,2),
+            dni NUMERIC(8,2),
+            gti NUMERIC(8,2)
+          );
+  storage:
+    size: 1Gi
