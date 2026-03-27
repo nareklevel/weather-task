@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: producer
-          image: 515242615212.dkr.ecr.us-east-1.amazonaws.com/weather/producer:9c5a7141400587dd4d101d3296daab2e5236d890
+          image: 515242615212.dkr.ecr.us-east-1.amazonaws.com/weather/producer:a1586e55c3c1ae200157787481ccd5665f7baf5a
           env:
             - name: KAFKA_BOOTSTRAP_SERVERS
               value: "weather-cluster-kafka-bootstrap.kafka.svc.cluster.local:9092"
