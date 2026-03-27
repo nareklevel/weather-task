@@ -38,7 +38,7 @@ for msg in consumer:
         cursor.execute(
             """
             INSERT INTO weather_long (
-                city, region, country, lat, lon, tz_id, localtime,
+                city, region, country, lat, lon, tz_id, local_time,
                 last_updated, temp_c, temp_f, is_day, condition_text, condition_code,
                 wind_mph, wind_kph, wind_degree, wind_dir,
                 pressure_mb, pressure_in, precip_mm, precip_in,

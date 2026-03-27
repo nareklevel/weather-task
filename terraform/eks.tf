@@ -24,6 +24,12 @@ module "eks" {
 
   enable_cluster_creator_admin_permissions = true
 
+  cluster_addons = {
+    aws-ebs-csi-driver = {
+      most_recent = true
+    }
+  }
+
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
 

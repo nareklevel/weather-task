@@ -28,7 +28,7 @@ spec:
             lat NUMERIC(9,4),
             lon NUMERIC(9,4),
             tz_id VARCHAR(100),
-            localtime TIMESTAMP,
+            local_time TIMESTAMP,
             last_updated TIMESTAMP,
             temp_c NUMERIC(5,2),
             temp_f NUMERIC(5,2),
